@@ -4,12 +4,13 @@ export default class ProcessManager {
     private processes = new Map<number, Process>();
 
     readonly list = (): number[] => {
-        const processes = [...Object.values(this.processes)];
+        const processes = [...this.processes.values()];
         return processes.map(process => process.pid);
     }
 
     readonly launch = (app: Application, messageHandler: ProcessMessageHandler, errorHandler: ProcessErrorHandler): number | false => {
         const pid = this.nextPID++;
+        let url: string = "";
 
         try {
             // get data
@@ -17,7 +18,7 @@ export default class ProcessManager {
 
             // prepare
             const blob: Blob = new Blob([code]);
-            const url: string = URL.createObjectURL(blob);
+            url = URL.createObjectURL(blob);
 
             // create worker
             const worker = new Worker(url);
@@ -42,6 +43,7 @@ export default class ProcessManager {
             // return
             return pid;
         } catch (e) {
+            if (url) URL.revokeObjectURL(url);
             console.error(`failed to launch ${app.identifier}`, e);
             return false;
         }
