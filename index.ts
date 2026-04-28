@@ -10,7 +10,7 @@ export default class ProcessManager {
         return processes.map(process => process.pid);
     }
 
-    readonly launch = (app: Application, messageHandler: ProcessMessageHandler, errorHandler: ProcessErrorHandler): number | false => {
+    readonly launch = (app: Application, messageHandler: ProcessMessageHandler, errorHandler: ProcessErrorHandler, parentProcess?: Process): number | false => {
         const pid = this.nextPID++;
         let url: string = "";
 
@@ -29,6 +29,7 @@ export default class ProcessManager {
                 identifier: app.identifier,
                 url,
                 worker,
+                childProcesses: [],
             }
 
             // add handlers
@@ -41,6 +42,9 @@ export default class ProcessManager {
 
             // set
             this.processes.set(pid, process);
+            if (parentProcess && this.processes.has(parentProcess.pid)) {
+                parentProcess.childProcesses.push(pid);
+            }
 
             // return
             return pid;
@@ -75,6 +79,10 @@ export default class ProcessManager {
             URL.revokeObjectURL(process.url);
             this.processes.delete(pid);
 
+            for (const childPID of process.childProcesses) {
+                this.kill(childPID);
+            }
+
             return true;
         } catch (e) {
             console.error(`failed to kill ${pid}`, e);
@@ -95,6 +103,7 @@ export interface Process {
     identifier: ApplicationIdentifier;
     url: string;
     worker: Worker;
+    childProcesses: number[];
 }
 
 export type ProcessMessageHandler = (pid: number, message: string) => void;
