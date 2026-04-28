@@ -1,3 +1,5 @@
+import { codePrefix } from "./prefix";
+
 export default class ProcessManager {
     // processes
     private nextPID: number = 1;
@@ -14,7 +16,7 @@ export default class ProcessManager {
 
         try {
             // get data
-            const code = app.code;
+            const code = codePrefix + app.code;
 
             // prepare
             const blob: Blob = new Blob([code]);
