@@ -1,5 +1,25 @@
 import { codePrefix } from "./prefix";
 
+// Type Definitions
+export type ApplicationIdentifier = string;
+
+export interface Application {
+    identifier: ApplicationIdentifier;
+    code: string;
+}
+
+export interface Process {
+    pid: number;
+    identifier: ApplicationIdentifier;
+    url: string;
+    worker: Worker;
+    childProcesses: number[];
+}
+
+export type ProcessMessageHandler = (pid: number, message: string) => void;
+export type ProcessErrorHandler = (pid: number, error: ErrorEvent) => void;
+
+// Main
 export default class ProcessManager {
     // processes
     private nextPID: number = 1;
@@ -90,21 +110,3 @@ export default class ProcessManager {
         }
     }
 }
-
-export type ApplicationIdentifier = string;
-
-export interface Application {
-    identifier: ApplicationIdentifier;
-    code: string;
-}
-
-export interface Process {
-    pid: number;
-    identifier: ApplicationIdentifier;
-    url: string;
-    worker: Worker;
-    childProcesses: number[];
-}
-
-export type ProcessMessageHandler = (pid: number, message: string) => void;
-export type ProcessErrorHandler = (pid: number, error: ErrorEvent) => void;
