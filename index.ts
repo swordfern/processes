@@ -75,7 +75,7 @@ export default class ProcessManager {
         }
     }
 
-    readonly send = (pid: number, message: string): boolean => {
+    readonly send = (pid: number, message: any): boolean => {
         try {
             const process = this.processes.get(pid);
             if (!process) return false;
