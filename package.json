@@ -1,20 +1,20 @@
 {
-  "name": "@swordfern/processes",
-  "version": "0.0.3",
-  "description": "Process Manager",
-  "homepage": "https://github.com/swordfern/processes#readme",
-  "bugs": {
-    "url": "https://github.com/swordfern/processes/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/swordfern/processes.git"
-  },
-  "license": "GPL-3.0",
-  "author": "",
-  "type": "module",
-  "main": "index.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  }
+    "name": "@swordfern/processes",
+    "version": "0.0.3",
+    "description": "Process Manager",
+    "homepage": "https://github.com/swordfern/processes#readme",
+    "bugs": {
+        "url": "https://github.com/swordfern/processes/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/swordfern/processes.git"
+    },
+    "license": "GPL-3.0",
+    "author": "",
+    "type": "module",
+    "main": "index.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    }
 }

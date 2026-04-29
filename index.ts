@@ -1,5 +1,5 @@
 import * as IPC from "@swordfern/ipc";
-import { codePrefix } from "./prefix";
+import sandboxCode from "./sandbox";
 
 // Type Definitions
 export type ApplicationIdentifier = string;
@@ -17,7 +17,10 @@ export interface Process {
     childProcesses: number[];
 }
 
-export type ProcessMessageHandler = (id: string, message: any) => IPC.GenericMessage;
+export type ProcessMessageHandler = (
+    id: string,
+    message: any,
+) => IPC.GenericMessage;
 
 // Main
 export default class ProcessManager {
@@ -27,16 +30,20 @@ export default class ProcessManager {
 
     readonly list = (): number[] => {
         const processes = [...this.processes.values()];
-        return processes.map(process => process.pid);
-    }
+        return processes.map((process) => process.pid);
+    };
 
-    readonly launch = (app: Application, messageHandler: ProcessMessageHandler, parentProcess?: Process): number | false => {
+    readonly launch = (
+        app: Application,
+        messageHandler: ProcessMessageHandler,
+        parentProcess?: Process,
+    ): number | false => {
         const pid = this.nextPID++;
         let url: string = "";
-        
+
         try {
             // get data
-            const code = codePrefix + app.code;
+            const code = sandboxCode(app.code);
 
             // prepare
             const blob: Blob = new Blob([code]);
@@ -50,7 +57,7 @@ export default class ProcessManager {
                 url,
                 worker,
                 childProcesses: [],
-            }
+            };
 
             // add handlers
             worker.addEventListener("message", (e) => {
@@ -58,7 +65,7 @@ export default class ProcessManager {
                 if (!msg.id) return;
                 const reply: IPC.GenericMessage = messageHandler(msg.id, msg);
                 this.send(pid, reply);
-            })
+            });
 
             // set
             this.processes.set(pid, process);
@@ -73,7 +80,7 @@ export default class ProcessManager {
             console.error(`failed to launch ${app.identifier}`, e);
             return false;
         }
-    }
+    };
 
     readonly send = (pid: number, message: any): boolean => {
         try {
@@ -85,7 +92,7 @@ export default class ProcessManager {
             console.error(`failed to send to ${pid}`, e);
             return false;
         }
-    }
+    };
 
     readonly kill = (pid: number): boolean => {
         // get process
@@ -94,7 +101,8 @@ export default class ProcessManager {
         // nothing to kill if no process
         if (!process) return true;
 
-        try { // kill
+        try {
+            // kill
             process.worker.terminate();
             URL.revokeObjectURL(process.url);
             this.processes.delete(pid);
@@ -108,5 +116,5 @@ export default class ProcessManager {
             console.error(`failed to kill ${pid}`, e);
             return false;
         }
-    }
+    };
 }
