@@ -1,3 +1,4 @@
+import * as IPC from "@swordfern/ipc";
 import { codePrefix } from "./prefix";
 
 // Type Definitions
@@ -16,8 +17,7 @@ export interface Process {
     childProcesses: number[];
 }
 
-export type ProcessMessageHandler = (pid: number, message: string) => void;
-export type ProcessErrorHandler = (pid: number, error: ErrorEvent) => void;
+export type ProcessMessageHandler = (id: string, message: any) => IPC.GenericMessage;
 
 // Main
 export default class ProcessManager {
@@ -30,10 +30,10 @@ export default class ProcessManager {
         return processes.map(process => process.pid);
     }
 
-    readonly launch = (app: Application, messageHandler: ProcessMessageHandler, errorHandler: ProcessErrorHandler, parentProcess?: Process): number | false => {
+    readonly launch = (app: Application, messageHandler: ProcessMessageHandler, parentProcess?: Process): number | false => {
         const pid = this.nextPID++;
         let url: string = "";
-
+        
         try {
             // get data
             const code = codePrefix + app.code;
@@ -54,10 +54,10 @@ export default class ProcessManager {
 
             // add handlers
             worker.addEventListener("message", (e) => {
-                messageHandler(pid, e.data);
-            })
-            worker.addEventListener("error", (e) => {
-                errorHandler(pid, e);
+                const msg = e.data;
+                if (!msg.id) return;
+                const reply: IPC.GenericMessage = messageHandler(msg.id, msg);
+                this.send(pid, reply);
             })
 
             // set
